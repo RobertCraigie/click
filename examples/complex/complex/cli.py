@@ -1,5 +1,6 @@
 import os
 import sys
+import importlib
 
 import click
 
@@ -38,10 +39,13 @@ class ComplexCLI(click.MultiCommand):
         return rv
 
     def get_command(self, ctx, name):
-        try:
-            mod = __import__(f"complex.commands.cmd_{name}", None, None, ["cli"])
-        except ImportError:
+        mod_name = f"complex.commands.cmd_{name}"
+        spec = importlib.util.find_spec(mod_name)
+        if spec is None:
+            # command not found
             return
+
+        mod = __import__(mod_name, None, None, ["cli"])
         return mod.cli
 
 
